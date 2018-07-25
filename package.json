@@ -4,12 +4,16 @@
   "description": "Autocross timing application",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
   },
   "author": "Adam Arezza",
   "license": "ISC",
   "dependencies": {
     "csv": "^3.1.0",
     "serialport": "^6.2.1"
+  },
+  "devDependencies": {
+    "electron": "^2.0.5"
   }
 }
