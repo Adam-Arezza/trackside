@@ -1,0 +1,15 @@
+{
+  "name": "trackside_app",
+  "version": "1.0.0",
+  "description": "Autocross timing application",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Adam Arezza",
+  "license": "ISC",
+  "dependencies": {
+    "csv": "^3.1.0",
+    "serialport": "^6.2.1"
+  }
+}
