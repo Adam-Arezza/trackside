@@ -2,18 +2,43 @@
 <html>
 
 <head>
-
-
+        <meta charset="utf-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 </head>
 
 <body>
-<h1>
-    Hello World
+<h1 style="text-align: center">
+    Trackside Autocross
 </h1>
+<div id="main" class="container-fluid">
+    <div class="row">
+        <p style="padding: 50px;">
+            Please initiate competitor list
+        </p>
+    </div>
+    <button id="importList">Create List</button>
+    <span id="testing"></span>
+    <select id="carList">
+    </select>
+    <button onclick="selectCompetitor()">Select</button>
 
+</div>
+<div class="container-fluid">
+    <table id="runtimes" style="padding:50px;background-color: lightblue; width:80%;">
+        <tr>
+            <th>Car#</th>
+            <th>Sector1</th>
+            <th>Sector2</th>
+            <th>Sector3</th>
+            <th>Run Time</th>
+        </tr>
+    </table>
+</div>
 
-
-
+<script src="./app/js/competitorList.js"></script>
+<script src="./app/js/timer.js"></script>
 </body>
 
 </html>
