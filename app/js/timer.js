@@ -4,7 +4,7 @@
 //At the moment of the message, the timestamp is taken
 const serialport = require("serialport");
 const port = new serialport("/dev/ttyACM0", {
-    baudRate:9600
+    baudRate: 9600
 })
 
 const parsers = serialport.parsers
@@ -14,16 +14,16 @@ const parser = new parsers.Readline({
 
 let startStamp = false
 
-port.on('open', function(){
-  console.log('Serial Port Opend');
+port.on('open', function () {
+    console.log('Serial Port Opend');
 });
 
-port.on('data', function(data){
-    console.log("Data: ",data[0])
-    if(data[0] == 48){
+port.on('data', function (data) {
+    console.log("Data: ", data[0])
+    if (data[0] == 48) {
         startStamp = true
     }
-    if(data[0] == 13){
+    if (data[0] == 13) {
 
     }
 });
@@ -35,18 +35,17 @@ function selectCompetitor() {
     //console.log(document.getElementById("carList").value)
     var competitor = document.getElementById("carList").value
     var results = getTimes()
-    
-    }
-    var newRunTimes = lapTime(competitor)
-    console.log(results)
-    for (i in competitorList.Participants) {
-        console.log(competitorList.Participants[i].Car)
-        if (competitor == competitorList.Participants[i].Car) {
-            competitorList.Participants[i].Run1 = results
-        }
-    }
-    console.log(competitorList)
+
 }
+var newRunTimes = lapTime(competitor)
+console.log(results)
+for (i in competitorList.Participants) {
+    console.log(competitorList.Participants[i].Car)
+    if (competitor == competitorList.Participants[i].Car) {
+        competitorList.Participants[i].Run1 = results
+    }
+}
+console.log(competitorList)
 
 function getTimes() {
     var timer = setInterval(runTime, 1000)

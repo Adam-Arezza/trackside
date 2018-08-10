@@ -6,10 +6,9 @@ const { dialog } = require('electron').remote;
 var competitorList = []
 
 function findCompetitor() {
-    console.log(competitorList)
     console.log("Looking for competitor")
     var carNumber = document.getElementById("carList").value;
-    return competitorList.find(function(competitor) {
+    return competitorList.find(function (competitor) {
         return (competitor.Car === carNumber)
     });
 }
@@ -25,12 +24,12 @@ document.getElementById("importList").addEventListener("click", function () {
 function importCsv() {
     dialog.showOpenDialog(function (fileNames) {
         var fileName = fileNames[0];
-        if (fileNames === undefined){
+        if (fileNames === undefined) {
             return console.log("no file selected")
         }
         //console.log("The filename is" + fileName + typeof (fileName))
 
-        if(fileName.split(".")[1] == "csv"){
+        if (fileName.split(".")[1] == "csv") {
             console.log("File accepted, generating competitor list...")
             alert("File accepted, generating competitor list...")
             fs.readFile(fileName, "utf8", function (err, data) {
@@ -53,9 +52,9 @@ function importCsv() {
                     //adding a value to each new competitor <option> in dropdown based on car#
                     newOption.value = competitors[i].Car
                 }
-            })   
+            })
         }
-        else{
+        else {
             console.log("filetype incorrect, please select a CSV file")
             alert("filetype incorrect, please select a CSV file")
         }

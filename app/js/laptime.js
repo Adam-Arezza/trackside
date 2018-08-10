@@ -1,16 +1,46 @@
+const serialport = require("serialport");
+const port = new serialport("/dev/ttyACM0", {
+    baudRate: 9600
+})
 
+// When a message is received frrom the master arduino
+// gateTriggered function is called with the nanos gate # passed in
+
+port.on('data', function (data) {
+    //console.log("Data: ", data[0])
+    if (data[0] == 48) {
+        gateTriggered(0)
+    }
+
+    if (data[0] == 49) {
+        gateTriggered(0)
+    }
+
+    if (data[0] == 50) {
+        gateTriggered(0)
+    }
+
+    if (data[0] == 51) {
+        gateTriggered(3)
+    }
+    
+    return "no incoming signals"
+});
+
+//sector gates including start and finish gates
 var gates = {
     0: [],
     1: [],
     2: [],
     3: [],
 }
-
+//staging the selected competitor for the run
 function stageDriver(competitor) {
     console.log('Found competitor', competitor) 
     gates[0].push(competitor);
 }
-
+//arduino will signal containning the triggered gate will be passsed into gateTriggered
+//
 function gateTriggered(gate) {
     var driversAtGate = gates[gate];
     if (!driversAtGate && driversAtGate == 0){
@@ -68,5 +98,4 @@ function addRunToTable(driverRun) {
     sector2.innerHTML = driverRun.times[1]
     sector3.innerHTML = driverRun.times[2]
     finalTime.innerHTML = driverRun.times[3]
-
 }
