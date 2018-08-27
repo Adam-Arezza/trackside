@@ -46,7 +46,7 @@ function importCsv() {
                 for (i = 0; i < competitors.length; i++) {
                     var carList = document.getElementById("carList")
                     var newOption = document.createElement("option")
-                    newOption.text = JSON.stringify(competitors[i])
+                    newOption.text = JSON.stringify(competitors[i].Car + " " + competitors[i].Name)
                     //adding new options in the <select> dropdown
                     carList.add(newOption)
                     //adding a value to each new competitor <option> in dropdown based on car#

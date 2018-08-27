@@ -3,9 +3,10 @@
 
 <head>
         <meta charset="utf-8">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
+        <link rel="stylesheet" href="./app/css/main.css">
 </head>
 
 <body>
@@ -13,20 +14,19 @@
     Trackside Autocross
 </h1>
 <div id="main" class="container-fluid">
-    <div class="row">
-        <p style="padding: 50px;">
-            Please initiate competitor list
-        </p>
-    </div>
+    <p id="listMsg" style="font-weight: bold; font-size: 20px; background-color: yellow;">
+        <!-- Please import a competitor list to begin... -->
+    </p>
+    <br>
     <button id="importList">Create List</button>
-    <span id="testing"></span>
     <select id="carList">
     </select>
-    <button onclick="stageDriver(findCompetitor())">Select</button>
-    <button onclick="gateTriggered(0)">GateStart</button>
-    <button onclick="gateTriggered(1)">Gate1</button>
-    <button onclick="gateTriggered(2)">Gate2</button>
-    <button onclick="gateTriggered(3)">Gate3</button>
+    <button id="stageDriver" onclick="stageDriver(findCompetitor())">Stage</button>
+    <button class="gateTrigger" onclick="gateTriggered(0)">GateStart</button>
+    <button class="gateTrigger" onclick="gateTriggered(1)">Gate1</button>
+    <button class="gateTrigger" onclick="gateTriggered(2)">Gate2</button>
+    <button class="gateTrigger" onclick="gateTriggered(3)">Gate3</button>
+    <button id="runDone" onclick="runComplete(competitorList)">Run Complete</button>
 </div>
 <div class="container-fluid">
     <span id="runNumber"></span>
@@ -43,6 +43,9 @@
 
 <script src="./app/js/competitorList.js"></script>
 <script src="./app/js/laptime.js"></script>
+<script>window.$ = window.jQuery = require('jquery')</script>
+<script src="./app/js/display.js"></script>
+
 </body>
 
 </html>

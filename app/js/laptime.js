@@ -34,32 +34,36 @@ var gates = {
     2: [],
     3: [],
 }
+var runCount = 1
 //staging the selected competitor for the run
 function stageDriver(competitor) {
     console.log('Found competitor', competitor) 
     gates[0].push(competitor);
 }
 //arduino will signal containning the triggered gate will be passsed into gateTriggered
-//
 function gateTriggered(gate) {
     var driversAtGate = gates[gate];
     if (!driversAtGate && driversAtGate == 0){
+        console.log("Driver didnt pass correct gate")
         return;
     }
     var driver = driversAtGate.shift();
     if(!driver.times && !driver.rawTimes){
         driver.rawTimes = []
         driver.times = []
+        driver.runs = {}
     }
-    driver.rawTimes.push(Date.now());
 
+    driver.rawTimes.push(Date.now());
+    
     var nextGate = gate+1;
     if (!gates[nextGate]) {
         console.log("End of run", driver)
         // calculate sector times & run times\
         getSectorTimes(driver);
         getRunTime(driver);
-        addRunToTable(driver)
+        // addRunToTable(driver);
+        runTable(driver);
         return;
     }
     gates[nextGate].push(driver);
@@ -67,7 +71,7 @@ function gateTriggered(gate) {
 
 function getSectorTimes(driver) {
         var rawSectors = driver.rawTimes
-        console.log(rawSectors)
+        //console.log(rawSectors)
         if(!rawSectors || rawSectors.length < 1){
             return
         }
@@ -84,18 +88,43 @@ function getRunTime(driver) {
     driver.times.push((times[times.length - 1] - times[0])/1000)
 }
 
-function addRunToTable(driverRun) {
+// function addRunToTable(driverRun) {
+//     var table = document.getElementById("runtimes")
+//     var row = table.insertRow(-1)
+//     var carNum = row.insertCell(0)
+//     var sector1 = row.insertCell(1)
+//     var sector2 = row.insertCell(2)
+//     var sector3 = row.insertCell(3)
+//     var finalTime = row.insertCell(4)
+
+//     carNum.innerHTML = driverRun.Car
+//     sector1.innerHTML = driverRun.times[0]
+//     sector2.innerHTML = driverRun.times[1]
+//     sector3.innerHTML = driverRun.times[2]
+//     finalTime.innerHTML = driverRun.times[3]
+// }
+
+function runTable(driver) {
     var table = document.getElementById("runtimes")
     var row = table.insertRow(-1)
-    var carNum = row.insertCell(0)
-    var sector1 = row.insertCell(1)
-    var sector2 = row.insertCell(2)
-    var sector3 = row.insertCell(3)
-    var finalTime = row.insertCell(4)
+    var tableData = {
+        carNum: row.insertCell(0),
+        sectors: [row.insertCell(1), row.insertCell(2), row.insertCell(3), row.insertCell(4)]
+    }
+    tableData.carNum.innerHTML = driver.Car
+    for(i in driver.times){
+        tableData.sectors[i].innerHTML = driver.times[i]
+    }
+}
 
-    carNum.innerHTML = driverRun.Car
-    sector1.innerHTML = driverRun.times[0]
-    sector2.innerHTML = driverRun.times[1]
-    sector3.innerHTML = driverRun.times[2]
-    finalTime.innerHTML = driverRun.times[3]
+function runComplete(competitors) {
+    for(i in competitors){
+       competitors[i].rawTimes = []
+       if(competitors[i].times){
+        competitors[i].runs["run" + runCount] = competitors[i].times
+        competitors[i].times = []
+       }
+    }
+    runCount++
+    
 }

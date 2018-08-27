@@ -1,0 +1,8 @@
+button {
+    color: black;
+    background-color: rgb(128, 204, 172);
+    border-radius: 5px;
+}
+select {
+    width: 200px;
+}
