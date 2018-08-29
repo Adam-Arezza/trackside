@@ -20,14 +20,15 @@ document.getElementById("importList").addEventListener("click", function () {
 })
 
 //Reading the csv file from the directory
-
+//A file search window will open for the user to select a file
+//if the filename ends with "csv", it will be accepted
+//if the filename does not end with "csv", it will not be accepted
 function importCsv() {
     dialog.showOpenDialog(function (fileNames) {
         var fileName = fileNames[0];
         if (fileNames === undefined) {
             return console.log("no file selected")
         }
-        //console.log("The filename is" + fileName + typeof (fileName))
 
         if (fileName.split(".")[1] == "csv") {
             console.log("File accepted, generating competitor list...")
@@ -36,6 +37,9 @@ function importCsv() {
                 if (err) {
                     throw err;
                 }
+                //The csv file is read and the data is passed into the csvJson function
+                //competitors array is populated with the data from csv file
+                //competitorList array recieves all data from competitors array
                 if (data) {
                     var competitors = []
                     csvJson(data, competitors)
@@ -81,3 +85,20 @@ function csvJson(csv, compList) {
         compList.push(obj)
     }
 }
+
+function compTable(competitors) {
+    var newTable = document.getElementById("compList")
+    for (i in competitors) {
+        var row = newTable.insertRow(-1)
+        var tableData = {
+            carNum: row.insertCell(0),
+            name: row.insertCell(1),
+            class: row.insertCell(2)
+        }
+        tableData.carNum.innerHTML = competitors[i].Car
+        tableData.name.innerHTML = competitors[i].Name
+        tableData.class.innerHTML = competitors[i].Class
+    }
+}
+
+

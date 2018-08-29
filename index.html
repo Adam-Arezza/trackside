@@ -4,33 +4,35 @@
 <head>
         <meta charset="utf-8">
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+        <script>window.$ = window.jQuery = require('jquery')</script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-        <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script> -->
         <link rel="stylesheet" href="./app/css/main.css">
 </head>
 
 <body>
-<h1 style="text-align: center">
-    Trackside Autocross
-</h1>
 <div id="main" class="container-fluid">
-    <p id="listMsg" style="font-weight: bold; font-size: 20px; background-color: yellow;">
+    <h1>Trackside Autocross</h1>
+    <button id="competitorLookup" class="btn btn-info">Competitors</button>
+    <button id="setupScreen" class="btn btn-info">Setup Gates</button>
+    <p id="listMsg" style="font-weight: bold; font-size: 20px; text-align: center;">
         <!-- Please import a competitor list to begin... -->
     </p>
     <br>
-    <button id="importList">Create List</button>
+    <div class="row justify-content-center">
+        <button class="btn btn-primary" id="importList">Import List</button>
+    </div>
     <select id="carList">
     </select>
     <button id="stageDriver" onclick="stageDriver(findCompetitor())">Stage</button>
-    <button class="gateTrigger" onclick="gateTriggered(0)">GateStart</button>
-    <button class="gateTrigger" onclick="gateTriggered(1)">Gate1</button>
-    <button class="gateTrigger" onclick="gateTriggered(2)">Gate2</button>
-    <button class="gateTrigger" onclick="gateTriggered(3)">Gate3</button>
-    <button id="runDone" onclick="runComplete(competitorList)">Run Complete</button>
+    <button class="gateTrigger btn btn-primary" onclick="gateTriggered(0)">GateStart</button>
+    <button class="gateTrigger btn btn-primary" onclick="gateTriggered(1)">Gate1</button>
+    <button class="gateTrigger btn btn-primary" onclick="gateTriggered(2)">Gate2</button>
+    <button class="gateTrigger btn btn-primary" onclick="gateTriggered(3)">Gate3</button>
+    <button class="btn btn-primary" id="runDone" onclick="runComplete(competitorList)">Run Complete</button>
 </div>
-<div class="container-fluid">
-    <span id="runNumber"></span>
-    <table id="runtimes" style="padding:50px;background-color: lightblue; width:80%;">
+<div id="runTable" class="container-fluid">
+    <h3 id="runNumber"></h3>
+    <table id="runtimes">
         <tr>
             <th>Car#</th>
             <th>Sector1</th>
@@ -41,10 +43,28 @@
     </table>
 </div>
 
+<div id="compTable" class="container-fluid">
+    <h2>Competitors</h2>
+    <button class="mainScreen btn btn-info">Main</button>
+    <table id="compList">
+        <tr>
+            <th>Car Number</th>
+            <th>Name</th>
+            <th>Class</th>
+        </tr>
+    </table>
+</div>
+
+<div id="setupControls" class="container-fluid">
+    <h2>Setup</h2>
+    <p>Use the buttons to find sector gate hardware</p>
+    <button id="searchBtn" class="btn btn-warning" onclick="gateSearch()">Look for gates</button>
+    <button class="mainScreen btn btn-info">Main</button>
+</div>
+
 <script src="./app/js/competitorList.js"></script>
 <script src="./app/js/laptime.js"></script>
-<script>window.$ = window.jQuery = require('jquery')</script>
-<script src="./app/js/display.js"></script>
+<script src="./app/js/displayControls.js"></script>
 
 </body>
 

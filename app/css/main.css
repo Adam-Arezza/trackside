@@ -1,8 +1,22 @@
-button {
-    color: black;
-    background-color: rgb(128, 204, 172);
-    border-radius: 5px;
+h1, h2 {
+    text-align: center;
 }
 select {
-    width: 200px;
+    width: 175px;
+}
+table {
+    width: 75%;
+}
+table, th, td {
+    border: 2px solid black;
+    text-align: center;
+    padding: 5px;
+
+}
+th {
+    background-color: lightblue;
+    font-size: 20px
+}
+#compList th, td{
+    width: 50px;
 }
