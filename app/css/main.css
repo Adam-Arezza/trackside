@@ -20,3 +20,10 @@ th {
 #compList th, td{
     width: 50px;
 }
+#compList, #runtimes tr:hover{
+    background-color: lightgray;
+    cursor: pointer;
+}
+.modal-header{
+    background-color: lightblue;
+}

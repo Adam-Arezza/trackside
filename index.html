@@ -2,69 +2,117 @@
 <html>
 
 <head>
-        <meta charset="utf-8">
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
-        <script>window.$ = window.jQuery = require('jquery')</script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-        <link rel="stylesheet" href="./app/css/main.css">
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <script>window.$ = window.jQuery = require('jquery')</script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./app/css/main.css">
 </head>
 
 <body>
-<div id="main" class="container-fluid">
-    <h1>Trackside Autocross</h1>
-    <button id="competitorLookup" class="btn btn-info">Competitors</button>
-    <button id="setupScreen" class="btn btn-info">Setup Gates</button>
-    <p id="listMsg" style="font-weight: bold; font-size: 20px; text-align: center;">
-        <!-- Please import a competitor list to begin... -->
-    </p>
-    <br>
-    <div class="row justify-content-center">
-        <button class="btn btn-primary" id="importList">Import List</button>
+    <div id="main" class="container-fluid">
+        <h1>Trackside Autocross</h1>
+        <button id="competitorLookup" class="btn btn-info">Competitors</button>
+        <button id="setupScreen" class="btn btn-info">Setup Gates</button>
+        <p id="listMsg" style="font-weight: bold; font-size: 20px; text-align: center;">
+            <!-- Please import a competitor list to begin... -->
+        </p>
+        <br>
+        <div class="row justify-content-center">
+            <button class="btn btn-primary" id="importList">Import List</button>
+        </div>
+        <div class="container-fluid" style="padding-top:25px;">
+            <select id="carList">
+            </select>
+            <button class="btn btn-primary" id="stageDriver" onclick="stageDriver(findCompetitor())">Stage</button>
+            <button class="gateTrigger btn btn-primary" onclick="gateTriggered(0)">GateStart</button>
+            <button class="gateTrigger btn btn-primary" onclick="gateTriggered(1)">Gate1</button>
+            <button class="gateTrigger btn btn-primary" onclick="gateTriggered(2)">Gate2</button>
+            <button class="gateTrigger btn btn-primary" onclick="gateTriggered(3)">Gate3</button>
+            <button class="btn btn-primary" id="runDone" onclick="runComplete(competitorList)">Run Complete</button>
+            <p id="penaltyMsg">To add penalties click on competitor</p>
+        </div>
     </div>
-    <select id="carList">
-    </select>
-    <button id="stageDriver" onclick="stageDriver(findCompetitor())">Stage</button>
-    <button class="gateTrigger btn btn-primary" onclick="gateTriggered(0)">GateStart</button>
-    <button class="gateTrigger btn btn-primary" onclick="gateTriggered(1)">Gate1</button>
-    <button class="gateTrigger btn btn-primary" onclick="gateTriggered(2)">Gate2</button>
-    <button class="gateTrigger btn btn-primary" onclick="gateTriggered(3)">Gate3</button>
-    <button class="btn btn-primary" id="runDone" onclick="runComplete(competitorList)">Run Complete</button>
-</div>
-<div id="runTable" class="container-fluid">
-    <h3 id="runNumber"></h3>
-    <table id="runtimes">
-        <tr>
-            <th>Car#</th>
-            <th>Sector1</th>
-            <th>Sector2</th>
-            <th>Sector3</th>
-            <th>Run Time</th>
-        </tr>
-    </table>
-</div>
+    <div id="runTable" class="container-fluid">
+        <h3 id="runNumber"></h3>
+        <table id="runtimes">
+            <tr>
+                <th>Car#</th>
+                <th>Sector1</th>
+                <th>Sector2</th>
+                <th>Sector3</th>
+                <th>Run Time</th>
+                <th>Sum of Sectors</th>
+            </tr>
+        </table>
+    </div>
+    <div class="modal" id="penaltyModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle" class="modal-title"></h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h5>Number of cones:</h5>
+                    <p id="coneCounter"></p>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-warning" id="coneAdder"> + </button>
+                    <button class="btn btn-warning" id="coneSubtract"> - </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div id="compTable" class="container-fluid">
-    <h2>Competitors</h2>
-    <button class="mainScreen btn btn-info">Main</button>
-    <table id="compList">
-        <tr>
-            <th>Car Number</th>
-            <th>Name</th>
-            <th>Class</th>
-        </tr>
-    </table>
-</div>
+    <div id="compTable" class="container-fluid">
+        <h2>Competitors</h2>
+        <button class="mainScreen btn btn-info">Main</button>
+        <table id="compList" class="col-sm-4">
+            <tr>
+                <th>Name</th>
+                <th>Car Number</th>
+            </tr>
+        </table>
+        <div class="modal" id="myModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 id="modalTitle" class="modal-title"></h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- <h5>Car Number:</h5>
+                            <p id="compCar"></p> -->
+                        <h5>Class:</h5>
+                        <p id="compClass"></p>
+                        <h5>Run times:</h5>
+                        <p id="compRuns"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div id="setupControls" class="container-fluid">
-    <h2>Setup</h2>
-    <p>Use the buttons to find sector gate hardware</p>
-    <button id="searchBtn" class="btn btn-warning" onclick="gateSearch()">Look for gates</button>
-    <button class="mainScreen btn btn-info">Main</button>
-</div>
+    <div id="setupControls" class="container-fluid">
+        <h2>Setup</h2>
+        <p>Use the buttons to find sector gate hardware</p>
+        <button id="searchBtn" class="btn btn-warning" onclick="gateSearch()">Look for gates</button>
+        <button class="mainScreen btn btn-info">Main</button>
+    </div>
 
-<script src="./app/js/competitorList.js"></script>
-<script src="./app/js/laptime.js"></script>
-<script src="./app/js/displayControls.js"></script>
+    <script src="./app/js/competitorList.js"></script>
+    <script src="./app/js/laptime.js"></script>
+    <script src="./app/js/displayControls.js"></script>
+    <script src="./app/js/findGates.js"></script>
 
 </body>
 

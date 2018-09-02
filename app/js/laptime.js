@@ -1,29 +1,56 @@
 const serialport = require("serialport");
-const port = new serialport("/dev/ttyACM0", {
-    baudRate: 9600
-})
-
-// When a message is received from the master arduino
-// gateTriggered function is called with the nanos gate # passed in
-
-port.on('data', function (data) {
-    var msg = data[0]
-    switch (msg) {
-        case 48:
-            gateTriggered(0)
-            break;
-        case 49:
-            gateTriggered(1)
-            break;
-        case 50:
-            gateTriggered(2)
-            break;
-        case 51:
-            gateTriggered(3)
-            break;
+const port = "/dev/ttyACM0"
+//number of times a reconnect has been attempted
+var attempts = 0
+//main serialport connection to the master arduino
+var connectPort = function () {
+    console.log("Opening connection...")
+    var arduinoPort = new serialport(port, {
+        baudRate: 9600
+    });
+    //if an error occurs on serial connection
+    //the error is displayed and reconnect function called
+    arduinoPort.on('error', function (err) {
+        console.log("error", err)
+        reConnect()
+    })
+    // When a message is received from the master arduino
+    // gateTriggered function is called with the nanos gate # passed in
+    arduinoPort.on('data', function (data) {
+        var msg = data[0]
+        console.log(data[0])
+        switch (msg) {
+            case 48:
+                gateTriggered(0)
+                break;
+            case 49:
+                gateTriggered(1)
+                break;
+            case 50:
+                gateTriggered(2)
+                break;
+            case 51:
+                gateTriggered(3)
+                break;
+        }
+    });
+}
+//will attempt to reconnect to the main arduino
+//if attempts 3 times with no connection, no further attempts are made automatically
+var reConnect = function () {
+    if (attempts < 3) {
+        setTimeout(function () {
+            console.log("reconnecting to Arduino")
+            connectPort()
+        }, 2000)
+        attempts++
     }
-});
-
+    else {
+        console.log("Could not establish a connection")
+    }
+}
+//initializing the serialport connection to the main arduino
+connectPort()
 //sector gates including start and finish gates
 var gates = {
     0: [],
@@ -31,22 +58,32 @@ var gates = {
     2: [],
     3: [],
 }
+//initial run count
 var runCount = 1
 //staging the selected competitor for the run
 function stageDriver(competitor) {
     console.log('Found competitor', competitor)
     gates[0].push(competitor);
 }
-//arduino will signal containning the triggered gate will be passsed into gateTriggered
+//the staged driver passes through each gate as they are triggered
+//timestamps are taken when a gate is triggered
+//when the driver has passed through each gate the times arre calculated
+//and displayed in the main run table
 function gateTriggered(gate) {
     var driversAtGate = gates[gate];
-    if (!driversAtGate && driversAtGate == 0) {
-        console.log("Driver didnt pass correct gate")
+    // console.log("Current Driver", JSON.stringify(driversAtGate))
+    if (driversAtGate == undefined || !driversAtGate) {
         return;
     }
     var driver = driversAtGate.shift();
-    if (!driver.times && !driver.rawTimes) {
+    if (driver == undefined) {
+        console.log("Gate triggered twice before new driver...")
+        return
+    }
+    if (!driver.rawTimes) {
         driver.rawTimes = []
+    }
+    if (!driver.times) {
         driver.times = []
         driver.runs = {}
     }
@@ -55,17 +92,16 @@ function gateTriggered(gate) {
 
     var nextGate = gate + 1;
     if (!gates[nextGate]) {
-        console.log("End of run", driver)
-        // calculate sector times & run times\
+        console.log("End of run", driver.Name)
+        // calculate sector times & run times
         getSectorTimes(driver);
         getRunTime(driver);
-        // addRunToTable(driver);
         runTable(driver);
         return;
     }
     gates[nextGate].push(driver);
 }
-
+//calculated the sector times of the driver
 function getSectorTimes(driver) {
     var rawSectors = driver.rawTimes
     //console.log(rawSectors)
@@ -76,7 +112,7 @@ function getSectorTimes(driver) {
         driver.times.push((rawSectors[i + 1] - rawSectors[i]) / 1000)
     }
 }
-
+//calculates the runtime of the driver
 function getRunTime(driver) {
     var times = driver.rawTimes
     if (!times || times < 1) {
@@ -84,20 +120,35 @@ function getRunTime(driver) {
     }
     driver.times.push((times[times.length - 1] - times[0]) / 1000)
 }
-
+//populates the main run table
 function runTable(driver) {
     var table = document.getElementById("runtimes")
     var row = table.insertRow(-1)
     var tableData = {
         carNum: row.insertCell(0),
-        sectors: [row.insertCell(1), row.insertCell(2), row.insertCell(3), row.insertCell(4)]
+        sectors: [row.insertCell(1), row.insertCell(2), row.insertCell(3), row.insertCell(4)],
+        //sectorSum used for testing if the added sector alues and runtime match
+        sectorSum: row.insertCell(5)
     }
     tableData.carNum.innerHTML = driver.Car
     for (i in driver.times) {
         tableData.sectors[i].innerHTML = driver.times[i]
     }
+    tableData.sectorSum.innerHTML = sum(driver.times).toPrecision(4)
 }
 
+//sums numbers array
+//input should be an array of numbers
+function sum(numbers) {
+    var total = 0
+    for (i = 0; i < numbers.length - 1; i++) {
+        total += numbers[i]
+    }
+    return total
+}
+//finalizes the current run and clears values for next run
+//removes all main run table values
+//increments the run count
 function runComplete(competitors) {
     for (i in competitors) {
         competitors[i].rawTimes = []

@@ -41,20 +41,20 @@ function importCsv() {
                 //competitors array is populated with the data from csv file
                 //competitorList array recieves all data from competitors array
                 if (data) {
-                    var competitors = []
-                    csvJson(data, competitors)
-                    competitorList.push(...competitors)
+                    // var competitors = []
+                    csvJson(data)
+                    // competitorList.push(...competitors)
                 }
                 //adding competitors to the selection dropdown for the user
                 //The current car at start gate will be selected here prior to run
-                for (i = 0; i < competitors.length; i++) {
+                for (i = 0; i < competitorList.length; i++) {
                     var carList = document.getElementById("carList")
                     var newOption = document.createElement("option")
-                    newOption.text = JSON.stringify(competitors[i].Car + " " + competitors[i].Name)
+                    newOption.text = JSON.stringify(competitorList[i].Car + " " + competitorList[i].Name)
                     //adding new options in the <select> dropdown
                     carList.add(newOption)
                     //adding a value to each new competitor <option> in dropdown based on car#
-                    newOption.value = competitors[i].Car
+                    newOption.value = competitorList[i].Car
                 }
             })
         }
@@ -73,16 +73,16 @@ function importCsv() {
 //inserting key,value pairs into the empty object
 //array of objects of competitor information is the result
 
-function csvJson(csv, compList) {
+function csvJson(csv) {
     var rows = csv.split("\n");
     var headers = rows[0].split(",")
-    for (var i = 1; i < rows.length; i++) {
+    for (var i = 1; i < rows.length - 1; i++) {
         var obj = {};
         var currentline = rows[i].split(",");
         for (var j = 0; j < headers.length; j++) {
             obj[headers[j]] = currentline[j];
         }
-        compList.push(obj)
+        competitorList.push(obj)
     }
 }
 
@@ -91,13 +91,11 @@ function compTable(competitors) {
     for (i in competitors) {
         var row = newTable.insertRow(-1)
         var tableData = {
-            carNum: row.insertCell(0),
-            name: row.insertCell(1),
-            class: row.insertCell(2)
+            name: row.insertCell(0),
+            carNum: row.insertCell(1)
         }
         tableData.carNum.innerHTML = competitors[i].Car
         tableData.name.innerHTML = competitors[i].Name
-        tableData.class.innerHTML = competitors[i].Class
     }
 }
 
