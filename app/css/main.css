@@ -1,8 +1,14 @@
+body {
+    background-color: white;
+}
 h1, h2 {
     text-align: center;
 }
 select {
-    width: 175px;
+    width: 100%;
+    font-size: 18px;
+    background-color: rgb(212, 228, 222);
+    color:black;
 }
 table {
     width: 75%;
@@ -13,17 +19,28 @@ table, th, td {
     padding: 5px;
 
 }
+p {
+    font-size: 18px;
+    padding: 5px;
+}
 th {
-    background-color: lightblue;
-    font-size: 20px
+    background-color: rgba(88, 89, 90, 0.541);
+    font-size: 18px
 }
 #compList th, td{
-    width: 50px;
+    width: 35px;
 }
-#compList, #runtimes tr:hover{
-    background-color: lightgray;
+#compList tr:hover, #runtimes tr:hover{
+    background-color: rgb(65, 235, 73);
     cursor: pointer;
 }
 .modal-header{
     background-color: lightblue;
+}
+#competitorDisplay {
+    background-color: white;
+    color:black;
+    border: solid 2px black;
+    border-radius: 4px;
+    padding: 10px;
 }

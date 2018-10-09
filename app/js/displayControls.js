@@ -1,39 +1,28 @@
 //initiates the start screen of the application
 //the user must import a CSV competitor list on this screen
 $(document).ready(function () {
-    $("#stageDriver").hide()
-    $("#runDone").hide()
-    $("#carList").hide()
-    $("#runtimes").hide()
-    $(".gateTrigger").hide()
+    $("#runTable").hide()
+    $("#userControls").hide()
     $("#importList").show()
-    $("#runNumber").hide()
     $("#compTable").hide()
     $("#setupControls").hide()
     $("#setupScreen").hide()
     $("#competitorLookup").hide()
-    $("#coneAdder").hide()
-    $("#coneSubtract").hide()
-    $("#penaltyMsg").hide()
+    $("#ftd").hide()
+    $("#ftdDisplay").hide()
     var intervalId = setInterval(function () {
         if (!$("#carList") || $("#carList")[0].length <= 1) {
             $("#listMsg").text("Please create competitor list")
         }
         //Once the competitor list is populated, the main application screen is activated
         else {
-            $("#listMsg").hide()
-            $("#stageDriver").show()
-            $("#runDone").show()
-            $(".gateTrigger").show()
-            $("#importList").hide()
-            $("#carList").show()
-            $("#runtimes").show()
-            $("#runNumber").show()
+            $("#runTable").show()
+            $("#userControls").show()   
             $("#setupScreen").show()
             $("#competitorLookup").show()
-            $("#coneAdder").show()
-            $("#coneSubtract").show()
-            $("#penaltyMsg").show()
+            $("#listMsg").hide()
+            $("#importList").hide()
+            $("#ftd").show()
             clearInterval(intervalId);
             intervalId = null;
         }
@@ -41,18 +30,16 @@ $(document).ready(function () {
     //The run count displayed above the live run table
     $("#runNumber").text('Run' + runCount)
 })
-
-//increments the displayed run #
-$("#runDone").on('click', function () {
-    $("#runNumber").text("Run" + runCount)
-})
-
+//initial count for cars that completed a run
+$("#carsDoneRun").text(carsDoneRun)
 //shows the main screen for runtimer
 $(".mainScreen").on('click', function () {
     $("#compTable").hide()
     $("#setupControls").hide()
     $("#main").show()
     $("#runTable").show()
+    $("#ftdDisplay").hide()
+    clearData($("#competitorData"))
 })
 
 //shows the setup screen for gate setup 
@@ -69,6 +56,9 @@ $("#competitorLookup").on('click', function () {
     $("#runTable").hide()
     $("#setupControls").hide()
     $("#compTable").show()
+    $("#competitorDisplay").hide()
+    $("#compList").show()
+    $("#backToList").hide()
     var tableCheck = $("#compList tr").length
     if (tableCheck == 1) {
         compTable(competitorList)
@@ -78,48 +68,117 @@ $("#competitorLookup").on('click', function () {
 //Modal for showing competitor information
 //activated by competitor lookup table selection
 $("#compList").on('click', 'tr', function () {
-    // console.log("clicked on competitor")
-    // console.log($(this).children('td').first().text())
+    $("#compList").hide()
+    $("#backToList").show()
+    var competitor
     var compCar = $(this).find("td:eq(1)").text()
     for (i in competitorList) {
         if (compCar === competitorList[i].Car) {
-            $("#modalTitle").text(JSON.stringify(competitorList[i].Name))
-            $("#compClass").text(JSON.stringify(competitorList[i].Class))
-            if (competitorList[i].runs) {
-                $("#compRuns").text(JSON.stringify(competitorList[i].runs))
+            competitor = competitorList[i]
+            for (item in competitor) {
+                if(item == "Runs"){
+                    // console.log("The RUNS are being shown")
+                    var label = "<h6>"+item+":"+JSON.stringify(competitor[item])+"</h6>"
+                    $("#competitorData").append(label)
+                }
+                if(item != "Runs"){
+                var label = "<h6>"+item+":"+competitor[item]+"</h6>"
+                $("#competitorData").append(label)
+                }
             }
-            if (!competitorList[i].runs) {
-                $("#compRuns").text("No runs completed")
-            }
+            var ftd = FTD(competitor)
+            // console.log("The ftd is", ftd)
+            var label = "<h6>" + "FTD: " + ftd + "</h6>"
+            $("#competitorData").append(label)
+
+            sectorBest(competitor)
         }
     }
-    $("#myModal").modal('show')
+    $("#competitorDisplay").show()
+    $("#backToList").on('click', function () {
+        clearData($("#competitorData"))
+        $(this).hide()
+        $("#competitorDisplay").hide()
+        $("#compList").show()
+    })
+})
+//
+
+$("#ftd").on('click', function(){
+    $("#main").hide()
+    $("#runTable").hide()
+    $("#setupControls").hide()
+    $("#ftdDisplay").show()
+    var fastestTimes = []
+    var classFastest = classFTD(competitorList)
+    competitorList.forEach(function(driver){
+        fastestTimes.push(FTD(driver))
+    })
+    
+    fastestTimes.sort()
+    console.log("the fastest times are:", fastestTimes)
+    console.log("The fastest time is:", fastestTimes[0])
+    console.log("The fastest times for each class are:", classFastest)
 })
 
-//Modal for adding cone penalties during runs
-//adds or subtracts cones based on input +/-
-$("#runtimes").on('click', 'tr', function () {
-    var coneCount = 0
-    var compCar = $(this).find("td:eq(0)").text()
-    console.log("The selected run is for car#", compCar)
-    $("#modalTitle").text("Penalties")
-    for (i in competitorList) {
-        if (compCar === competitorList[i].Car) {
-            var competitor = competitorList[i]
-            $("#coneAdder").on('click', function () {
-                coneCount++
-                console.log("Runtime before penalties", competitor.times[competitor.times.length - 1])
-                competitor.times[competitor.times.length - 1] += 2.000
-                console.log("Runtime after penalties", competitor.times[competitor.times.length - 1])
-                $("#coneCounter").text(coneCount)
-            })
-            $("#coneSubtract").on('click', function () {
-                coneCount--
-                competitor.times[competitor.times.length - 1] -= 2.000
-                $("#coneCounter").text(coneCount)
-            })
+function clearData(element) {
+    element.empty()
+}
+
+//computes the competitors fastest laptime
+function FTD(competitor) {
+    var finalTimes = []
+    if(competitor.Runs){
+        for(i in competitor.Runs){
+            finalTimes.push(competitor.Runs[i].final)
         }
     }
-    $("#penaltyModal").modal('show')
-})
+    return Math.min.apply(null,finalTimes)
+}
+//computes the fastest laptime for each class
+function classFTD(competitors) {
+    var runtimeList = []
+    var classList = []
+    var sortedClass = []
+    var ftdClass = {}
+    competitors.forEach(function(competitor){
+        runtimeList.push([competitor.Name,competitor.Class,FTD(competitor)])
+        classList.push(competitor.Class)
+    })
+    classList.forEach(function(classes){
+        if(sortedClass.includes(classes) == false){
+            sortedClass.push(classes)
+        }
+    })
+    for(i in sortedClass){
+        var classFinalTimes = []
+        for(time in runtimeList){
+            if(runtimeList[time][1] == sortedClass[i]){
+                classFinalTimes.push(runtimeList[time][2])
+            }
+        }
+        // console.log(classFinalTimes)
+        classFinalTimes.sort()
+        ftdClass["class"+ sortedClass[i]] = classFinalTimes[0]
+    }
+    // console.log("ftdClass object:", ftdClass)
+    // console.log("RuntimeList", runtimeList)
+    return ftdClass
+}
+//computes the fastest sectors for a chosen competitor
+function sectorBest(competitor) {
+    var sectorTimes = []
+    for(run in competitor.Runs){
+        sectorTimes.push(run,JSON.stringify(competitor.Runs[run]))
+        // for(time in competitor.Runs[run]){
+        //     sectorTimes.push([JSON.stringify(competitor.Runs[run]),competitor.Runs[run][time]])
+        // }
+    }
+    console.log("The sector times for this driver are: " + sectorTimes)
+}
 
+//computes the theoratical fastest laptime for a chosen competitor
+//based on their fastest sectors times
+function tbSector(competitor) {
+    
+}

@@ -44,6 +44,7 @@ function importCsv() {
                     // var competitors = []
                     csvJson(data)
                     // competitorList.push(...competitors)
+                    $("#totalCompetitors").text(competitorList.length)
                 }
                 //adding competitors to the selection dropdown for the user
                 //The current car at start gate will be selected here prior to run
@@ -98,5 +99,3 @@ function compTable(competitors) {
         tableData.name.innerHTML = competitors[i].Name
     }
 }
-
-

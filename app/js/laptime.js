@@ -60,6 +60,7 @@ var gates = {
 }
 //initial run count
 var runCount = 1
+var carsDoneRun = 0
 //staging the selected competitor for the run
 function stageDriver(competitor) {
     console.log('Found competitor', competitor)
@@ -85,7 +86,12 @@ function gateTriggered(gate) {
     }
     if (!driver.times) {
         driver.times = []
-        driver.runs = {}
+    }
+    if(!driver.Runs) {
+        driver.Runs = {} 
+    }
+    if(driver.Runs) {
+        driver.Runs["run" + runCount] = {}
     }
 
     driver.rawTimes.push(Date.now());
@@ -97,6 +103,8 @@ function gateTriggered(gate) {
         getSectorTimes(driver);
         getRunTime(driver);
         runTable(driver);
+        carsDoneRun++
+        $("#carsDoneRun").text(carsDoneRun)
         return;
     }
     gates[nextGate].push(driver);
@@ -121,22 +129,25 @@ function getRunTime(driver) {
     driver.times.push((times[times.length - 1] - times[0]) / 1000)
 }
 //populates the main run table
+//Currently only allows for 3 sectors
+//will update to add as many sectors as needed
 function runTable(driver) {
     var table = document.getElementById("runtimes")
     var row = table.insertRow(-1)
     var tableData = {
         carNum: row.insertCell(0),
-        sectors: [row.insertCell(1), row.insertCell(2), row.insertCell(3), row.insertCell(4)],
+        carModel: row.insertCell(1),
+        sectors: [row.insertCell(2), row.insertCell(3), row.insertCell(4), row.insertCell(5)],
         //sectorSum used for testing if the added sector alues and runtime match
-        sectorSum: row.insertCell(5)
+        sectorSum: row.insertCell(6)
     }
     tableData.carNum.innerHTML = driver.Car
+    tableData.carModel.innerHTML = driver.Make + " " + driver.Model
     for (i in driver.times) {
         tableData.sectors[i].innerHTML = driver.times[i]
     }
     tableData.sectorSum.innerHTML = sum(driver.times).toPrecision(4)
 }
-
 //sums numbers array
 //input should be an array of numbers
 function sum(numbers) {
@@ -152,13 +163,73 @@ function sum(numbers) {
 function runComplete(competitors) {
     for (i in competitors) {
         competitors[i].rawTimes = []
-        if (competitors[i].times) {
-            competitors[i].runs["run" + runCount] = competitors[i].times
-            competitors[i].times = []
+        if (competitors[i].times && competitors[i].times !== "DNF" && competitors[i].times.length) {
+            // competitors[i].Runs["run" + runCount] = {}
+            var addCompetitorRun = competitors[i].Runs["run" + runCount]
+            for (sector = 0; sector <= competitors[i].times.length-2; sector++) {
+                addCompetitorRun["sector" + (sector + 1)] = competitors[i].times[sector]
+            }
+            if(!addCompetitorRun.penalty) {
+                addCompetitorRun["final"] = competitors[i].times[competitors[i].times.length-1]
+            }
+            else{
+                addCompetitorRun["final"] = competitors[i].times[competitors[i].times.length-1]
+                addCompetitorRun["penalized"] = addCompetitorRun.final + addCompetitorRun.penalty * 2.00    
+            }
         }
+        if(competitors[i].times == "DNF") {
+            competitors[i].Runs["run" + runCount] = "DNF"
+        }
+        competitors[i].times = []
     }
     runCount++
     $("#runtimes td").remove()
+    $("#runNumber").text("Run" + runCount)
+    carsDoneRun = 0
     // localStorage.setItem("competitors", JSON.stringify(competitors))
     // localStorage.getItem("competitors")
 }
+//Modal for adding cone penalties or DNF during runs
+//adds or subtracts cones based on input +/-
+//click the save changes before closing
+var selectedCompetitor
+var dnf = false
+var coneCount = 0
+$("#runtimes").on('click', 'tr', function () {
+    var compCar = $(this).find("td:eq(0)").text()
+    for (i in competitorList) {
+        if (compCar == competitorList[i].Car) {
+            selectedCompetitor = competitorList[i]
+            console.log("The selected competitor is", selectedCompetitor.Name)    
+        }
+    }
+    $("#penaltyModal").modal('show')
+    $("#modalTitle").text("Penalties")
+    $("#coneCounter").text(coneCount)
+})
+$("#coneAdder").on('click', function () {
+    coneCount ++
+    $("#coneCounter").text(coneCount)
+})
+
+$("#coneSubtract").on('click', function () {
+    coneCount--
+    // console.log("Removed 1 cone penalty from", selectedCompetitor.Name)
+    $("#coneCounter").text(coneCount)
+})
+
+$("#dnfBtn").on('click', function () {
+    dnf = true
+    // console.log(competitor.Name, "gets a DNF for this run", dnf)
+})
+$("#saveChanges").on('click', function () {
+    if (dnf == true) {
+        console.log("run is a DNF", dnf)
+        selectedCompetitor.times = "DNF"
+    }
+    if (coneCount > 0) {
+        console.log("Adding cone penalties to", selectedCompetitor.Name)
+        selectedCompetitor.Runs["run" + runCount]["penalty"] = coneCount
+    }
+    coneCount = 0
+})
